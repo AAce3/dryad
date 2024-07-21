@@ -120,6 +120,9 @@ impl Searcher {
                         early_backprop_count += 1;
                     }
                     NodeStatus::Terminal(terminal) => {
+                        if is_root {
+                            return Err(SelectError::TerminalRoot);
+                        }
                         let parent = node.parent.unwrap();
                         node.virtual_visits += processed_visits;
                         node.terminal_state = terminal;

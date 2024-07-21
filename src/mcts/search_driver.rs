@@ -98,7 +98,7 @@ impl SharedTreeData {
         root_node.full_visits += 1;
 
         root_node.set_nn_eval(&result.eval);
-       
+
         self.tree.set_root(root_ptr);
         self.cache
             .lock()
@@ -366,11 +366,13 @@ impl SearcherThread {
             // only have the time manager thread report bestmove
             let tree = &self.searcher.shared_tree.tree;
             let root_node = tree.get(tree.root());
+
             let best_child = root_node
                 .children(tree)
                 .into_iter()
-                .max_by_key(|a| a.num_visits())
+                .max_by_key(|a| a.bestmove_score())
                 .unwrap();
+
             println!("bestmove {}", best_child.parent_edge.get_action());
         }
     }

@@ -173,6 +173,18 @@ impl TempNode {
         );
         self.ptr = Some(new_ptr)
     }
+
+    pub fn bestmove_score(&self) -> i64 {
+        if let Some(state) = self.terminal_state() {
+            match state {
+                Terminal::Score | Terminal::Draw => self.total_visits as i64,
+                Terminal::Loss(ply) => i64::MAX - (ply as i64),
+                Terminal::Win(ply) => i64::MIN + (ply as i64),
+            }
+        } else {
+            self.num_visits() as i64
+        }
+    }
 }
 
 // specialized node used only for selection
