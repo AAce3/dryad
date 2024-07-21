@@ -47,9 +47,9 @@ pub fn uci_loop(network_path: Option<&str>) {
     let network: Arc<dyn Network> = match find_network(network_path) {
         Some(network) => network,
         None => {
-            eprintln!("There was a problem loading the network. Please ensure that the path you have entered is a valid path and that all dependencies are available on your system. Exiting process.");
+            eprintln!("There was a problem loading the network. \nPlease ensure that the path you have entered is a valid path and that all dependencies are available on your system.\nExiting process.");
 
-            thread::sleep(Duration::from_secs(1));
+            thread::sleep(Duration::from_secs(5));
             return;
         }
     };
@@ -74,7 +74,14 @@ pub fn uci_loop(network_path: Option<&str>) {
             .read_line(&mut io_string)
             .expect("Failed to read stdin");
 
-        if io_string.starts_with("uci") {
+        if io_string.starts_with("ucinewgame") {
+            position = PositionHistory::from_fen(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            )
+            .unwrap();
+            tree_data.clear();
+            tree_data.initialize_root(&network, &position);
+        } else if io_string.starts_with("uci") {
             println!("id name dryad {VERSION}");
             println!("id author Aaron Li");
             print_options();
@@ -137,7 +144,6 @@ pub fn uci_loop(network_path: Option<&str>) {
             stop_flag.store(true);
         } else if io_string.starts_with("position") {
             let new_position = parse_position(&io_string);
-            assert!(new_position.is_some());
             if let Some(mut new_position) = new_position {
                 let new_root = tree_data
                     .tree
